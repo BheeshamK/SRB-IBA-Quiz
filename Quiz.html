@@ -1,0 +1,297 @@
+<!-- IBA / SRB Public Liaison Officer — Interactive Quiz (Dark Theme)
+     Paste this whole block into Blogger Post (HTML view). -->
+     <!DOCTYPE html>
+     <html>
+     <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <title>IBA/SRB Mock Test Public Liaison Officer (PLO) - Interactive</title>
+     <style>
+       :root{
+         --bg:#eeefef;
+         --card:#ededee;
+         --accent:#041836;
+         --muted:#98a0aa;
+         --text:#062a4f;
+         --good:#28a745;
+       }
+       body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);margin:18px;}
+       .container{max-width:980px;margin:0 auto;padding:18px;}
+       header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+       h1{font-size:20px;margin:0;color:var(--text)}
+       .meta{color:var(--muted);font-size:13px}
+       .section-title{background:linear-gradient(90deg, rgba(31,111,235,0.15), rgba(31,111,235,0.06));padding:10px;border-radius:8px;margin-top:18px;border:1px solid rgba(255,255,255,0.03)}
+       .qcard{background:var(--card);border-radius:8px;padding:12px;margin:12px 0;border:1px solid rgba(255,255,255,0.03)}
+       .qtext{font-weight:600;margin-bottom:8px}
+       label.option{display:block;padding:8px 10px;border-radius:6px;margin:6px 0;cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+       input[type="radio"]{margin-right:10px}
+       .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+       .btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+       .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+       .result-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#07121a;padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);min-width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.6);display:none;z-index:999;}
+       .result-modal h2{margin:0 0 8px 0;color:var(--accent)}
+       .result-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:15px}
+       .close-x{position:absolute;right:10px;top:8px;color:var(--muted);cursor:pointer}
+       .score-big{font-size:22px;font-weight:700;color:var(--good);margin-top:8px}
+       .footer-note{color:var(--muted);font-size:13px;margin-top:12px}
+       @media(max-width:600px){
+         .qtext{font-size:15px}
+       }
+     </style>
+     </head>
+     <body>
+     <div class="container">
+       <header>
+         <div>
+           <h1>IBA / SRB Public Liaison Officer — Moderate Level (Interactive)</h1>
+           <div class="meta">100 MCQs — Select one option per question — Section-wise result</div>
+         </div>
+         <div style="text-align:right">
+           <div class="meta">No answers shown after submit</div>
+         </div>
+       </header>
+     
+       <!-- Quiz will be rendered here -->
+       <div id="quiz-root"></div>
+     
+       <div class="controls">
+         <button class="btn" id="submitBtn">Submit Answers</button>
+         <button class="btn secondary" id="resetBtn" title="Clear all selections">Reset</button>
+         <div style="margin-left:auto;color:var(--muted)">Tip: Use keyboard/mouse to select answers</div>
+       </div>
+     
+       <div class="footer-note">Embed friendly. Answers are hidden; users only see section scores and total. CopyRight@ GetEasyTechnical 2025</div>
+     </div>
+     
+     <!-- Result modal -->
+     <div id="resultModal" class="result-modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+       <span class="close-x" id="closeModal">✕</span>
+       <h2 id="resultTitle">Your Test Result</h2>
+       <div id="resultDetails"></div>
+       <div class="score-big" id="totalScore"></div>
+       <div style="margin-top:8px;text-align:right">
+         <button class="btn" id="closeBtn">Close</button>
+       </div>
+     </div>
+     
+     <script>
+     /* Data structure:
+      sections: [{ id, title, questions:[ {q, options:{A:..,B:..,C:..,D:..}, answer:'B'} ] }]
+     */
+     const quizSections = [
+       {
+         id: 'A',
+         title: 'Section A — English (25 MCQs)',
+         questions: [
+           { q: '1. Choose the correct synonym of “Transparent”:', options:{A:'Opaque',B:'Clear',C:'Blurry',D:'Hidden'}, answer:'B' },
+           { q: '2. Identify the correctly punctuated sentence:', options:{A:'He said, “I am coming.”',B:'He said “I am coming”.',C:'He said I am coming.',D:'He said, I am coming'}, answer:'A' },
+           { q: '3. Choose the correct antonym of “Artificial”:', options:{A:'Synthetic',B:'Natural',C:'Plastic',D:'Man-made'}, answer:'B' },
+           { q: '4. She _____ the report before the meeting started.', options:{A:'prepare',B:'prepares',C:'had prepared',D:'preparing'}, answer:'C' },
+           { q: '5. He is interested ___ learning new languages.', options:{A:'on',B:'to',C:'in',D:'with'}, answer:'C' },
+           { q: '6. Find the error: Each of the boys have done their homework.', options:{A:'Each',B:'have',C:'their',D:'homework'}, answer:'B' },
+           { q: '7. Choose the correct passive voice: “They cleaned the office yesterday.”', options:{A:'The office is cleaned yesterday.',B:'The office was cleaned yesterday.',C:'The office had cleaned yesterday.',D:'The office has been cleaned yesterday.'}, answer:'B' },
+           { q: '8. Choose the correct indirect speech: He said, “I will help you.”', options:{A:'He said that he would help me.',B:'He says he will help me.',C:'He said he will help me.',D:'He said he helps me.'}, answer:'A' },
+           { q: '9. Choose the correct spelling:', options:{A:'Enviroment',B:'Environmant',C:'Environment',D:'Enviroement'}, answer:'C' },
+           { q: '10. Identify the correct article: She bought ___ umbrella before leaving.', options:{A:'a',B:'an',C:'the',D:'no article'}, answer:'B' },
+           { q: '11. Choose the correct synonym of “Brief”:', options:{A:'Long',B:'Short',C:'Weak',D:'Bright'}, answer:'B' },
+           { q: '12. Choose the correct preposition: I have been waiting ___ you for an hour.', options:{A:'on',B:'to',C:'for',D:'from'}, answer:'C' },
+           { q: '13. Choose the correct tense: He ____ in Karachi since 2020.', options:{A:'lived',B:'has lived',C:'had lived',D:'lives'}, answer:'B' },
+           { q: '14. Choose the correct comparative form: This room is _____ than that one.', options:{A:'more bright',B:'brighter',C:'most bright',D:'bright'}, answer:'B' },
+           { q: '15. Choose the correct conjunction: He failed the test ___ he didn’t study.', options:{A:'and',B:'because',C:'although',D:'but'}, answer:'B' },
+           { q: '16. Identify the correct sentence:', options:{A:'She don’t like apples.',B:'She doesn’t likes apples.',C:'She doesn’t like apples.',D:'She not like apples.'}, answer:'C' },
+           { q: '17. Choose the correct meaning of the idiom “Break the ice”:', options:{A:'To make people comfortable in a new situation.',B:'To cause trouble.',C:'To stop fighting.',D:'To start a game.'}, answer:'A' },
+           { q: '18. One-word substitution: A person who talks too much —', options:{A:'Introvert',B:'Extrovert',C:'Loquacious',D:'Silent'}, answer:'C' },
+           { q: '19. Choose the correct question tag: You are coming, ___?', options:{A:'are you',B:'aren’t you',C:'don’t you',D:'didn’t you'}, answer:'B' },
+           { q: '20. Choose the correct form: He prefers tea ___ coffee.', options:{A:'for',B:'over',C:'than',D:'instead'}, answer:'B' },
+           { q: '21. Choose the correct synonym of “Vacant”:', options:{A:'Busy',B:'Empty',C:'Filled',D:'Full'}, answer:'B' },
+           { q: '22. Choose the correct antonym of “Generous”:', options:{A:'Kind',B:'Miserly',C:'Honest',D:'Polite'}, answer:'B' },
+           { q: '23. Choose the correct article: ___ Nile is the longest river in the world.', options:{A:'A',B:'An',C:'The',D:'No article'}, answer:'C' },
+           { q: '24. Choose the correct preposition: The teacher divided the class ___ four groups.', options:{A:'between',B:'into',C:'among',D:'in'}, answer:'B' },
+           { q: '25. Choose the correct form: If I ___ rich, I would travel the world.', options:{A:'am',B:'was',C:'were',D:'be'}, answer:'C' }
+         ]
+       },
+     
+       {
+         id: 'B',
+         title: 'Section B — Mathematics & Logic (25 MCQs)',
+         questions: [
+           { q: '1. What is 25% of 360?', options:{A:'60',B:'72',C:'80',D:'90'}, answer:'D' },
+           { q: '2. The ratio of 2:5 is equivalent to —', options:{A:'6:15',B:'4:15',C:'8:25',D:'10:15'}, answer:'A' },
+           { q: '3. If a train travels 120 km in 2 hours, its speed is —', options:{A:'40 km/h',B:'50 km/h',C:'60 km/h',D:'70 km/h'}, answer:'C' },
+           { q: '4. Simplify: 3² + 4² = ?', options:{A:'12',B:'13',C:'25',D:'7'}, answer:'C' },
+           { q: '5. If 5x = 45, then x = ?', options:{A:'9',B:'8',C:'10',D:'7'}, answer:'A' },
+           { q: '6. What is ¾ of 200?', options:{A:'100',B:'120',C:'150',D:'180'}, answer:'C' },
+           { q: '7. If 10 workers can finish a job in 6 days, how long will 5 workers take (same efficiency)?', options:{A:'6',B:'8',C:'10',D:'12'}, answer:'D' },
+           { q: '8. The average of 4, 6, 8, and 10 is —', options:{A:'7',B:'8',C:'9',D:'10'}, answer:'A' },
+           { q: '9. A man bought a pen for Rs. 80 and sold it for Rs. 100. His profit percentage is —', options:{A:'20%',B:'25%',C:'10%',D:'30%'}, answer:'B' },
+           { q: '10. If 40% of a number is 80, what is the number?', options:{A:'100',B:'160',C:'200',D:'240'}, answer:'C' },
+           { q: '11. What is the next number in the series: 2, 4, 8, 16, ?', options:{A:'18',B:'20',C:'24',D:'32'}, answer:'D' },
+           { q: '12. The sum of interior angles of a triangle is —', options:{A:'90°',B:'120°',C:'180°',D:'360°'}, answer:'C' },
+           { q: '13. If the simple interest on Rs. 1000 at 10% per annum for 2 years is —', options:{A:'Rs. 100',B:'Rs. 150',C:'Rs. 200',D:'Rs. 250'}, answer:'C' },
+           { q: '14. A clock shows 3:15. The angle between the hour and minute hands is —', options:{A:'0°',B:'7.5°',C:'30°',D:'37.5°'}, answer:'B' },
+           { q: '15. What is 12 ÷ (3 × 2)?', options:{A:'1',B:'2',C:'3',D:'4'}, answer:'B' },
+           { q: '16. Find the missing number: 3, 6, 12, 24, ?', options:{A:'36',B:'40',C:'48',D:'50'}, answer:'C' },
+           { q: '17. If a = 5 and b = 3, find a² + b².', options:{A:'25',B:'34',C:'28',D:'30'}, answer:'B' },
+           { q: '18. The perimeter of a square of side 5 cm is —', options:{A:'10 cm',B:'15 cm',C:'20 cm',D:'25 cm'}, answer:'C' },
+           { q: '19. If the cost of 8 pens is Rs. 160, what is the cost of 1 pen?', options:{A:'Rs. 10',B:'Rs. 15',C:'Rs. 20',D:'Rs. 25'}, answer:'C' },
+           { q: '20. Solve: 15 + (25 ÷ 5) × 2 = ?', options:{A:'20',B:'25',C:'30',D:'35'}, answer:'B' },
+           { q: '21. Which number is not a prime number?', options:{A:'2',B:'3',C:'9',D:'11'}, answer:'C' },
+           { q: '22. A man walks 3 km north, then 4 km east. His distance from the start point is —', options:{A:'5 km',B:'6 km',C:'7 km',D:'8 km'}, answer:'A' },
+           { q: '23. Find the odd one out: 2, 4, 8, 10, 16', options:{A:'2',B:'4',C:'10',D:'16'}, answer:'C' },
+           { q: '24. What will be the day after 100 days if today is Monday?', options:{A:'Wednesday',B:'Thursday',C:'Friday',D:'Saturday'}, answer:'A' },
+           { q: '25. If 15% of x = 30, then x = ?', options:{A:'100',B:'150',C:'200',D:'250'}, answer:'C' }
+         ]
+       },
+     
+       {
+         id: 'C',
+         title: 'Section C — General Knowledge & Current Affairs (25 MCQs)',
+         questions: [
+           { q: '1. The current Prime Minister of Pakistan (as of 2025) is —', options:{A:'Imran Khan',B:'Shehbaz Sharif',C:'Anwaar-ul-Haq Kakar',D:'Bilawal Bhutto'}, answer:'B' },
+           { q: '2. The capital of Balochistan province is —', options:{A:'Quetta',B:'Gwadar',C:'Khuzdar',D:'Turbat'}, answer:'A' },
+           { q: '3. The currency of Japan is —', options:{A:'Yuan',B:'Dollar',C:'Yen',D:'Won'}, answer:'C' },
+           { q: '4. UNO stands for —', options:{A:'United Nations Organization',B:'Union of Nations Office',C:'United National Order',D:'United New Organization'}, answer:'A' },
+           { q: '5. Pakistan became a member of the United Nations in —', options:{A:'1947',B:'1948',C:'1949',D:'1950'}, answer:'A' },
+           { q: '6. The current Chief Minister of Sindh (2025) is —', options:{A:'Murad Ali Shah',B:'Syed Nasir Hussain Shah',C:'Sharjeel Memon',D:'Owais Shah'}, answer:'A' },
+           { q: '7. Gwadar Port has been developed with assistance from —', options:{A:'USA',B:'Saudi Arabia',C:'China',D:'UAE'}, answer:'C' },
+           { q: '8. The world’s largest desert is —', options:{A:'Gobi',B:'Sahara',C:'Kalahari',D:'Thar'}, answer:'B' },
+           { q: '9. The founder of Microsoft is —', options:{A:'Steve Jobs',B:'Bill Gates',C:'Mark Zuckerberg',D:'Jeff Bezos'}, answer:'B' },
+           { q: '10. CPEC stands for —', options:{A:'China Pakistan Economic Corridor',B:'China Pakistan Energy Contract',C:'Central Pakistan Energy Council',D:'Corridor of Pakistan and China'}, answer:'A' },
+           { q: '11. The head office of the State Bank of Pakistan is located in —', options:{A:'Lahore',B:'Islamabad',C:'Karachi',D:'Quetta'}, answer:'C' },
+           { q: '12. Pakistan’s national flower is —', options:{A:'Jasmine',B:'Rose',C:'Tulip',D:'Sunflower'}, answer:'A' },
+           { q: '13. The current UN Secretary-General (2025) is —', options:{A:'António Guterres',B:'Ban Ki-moon',C:'Kofi Annan',D:'Ursula von der Leyen'}, answer:'A' },
+           { q: '14. The headquarters of the World Bank is in —', options:{A:'Geneva',B:'New York',C:'Washington D.C.',D:'Paris'}, answer:'C' },
+           { q: '15. The largest planet in our solar system is —', options:{A:'Earth',B:'Saturn',C:'Jupiter',D:'Neptune'}, answer:'C' },
+           { q: '16. The Indus River originates from —', options:{A:'Tibet',B:'Nepal',C:'Kashmir',D:'India'}, answer:'A' },
+           { q: '17. The national animal of Pakistan is —', options:{A:'Markhor',B:'Lion',C:'Tiger',D:'Deer'}, answer:'A' },
+           { q: '18. The current Chief Justice of Pakistan (2025) is —', options:{A:'Qazi Faez Isa',B:'Gulzar Ahmed',C:'Umar Ata Bandial',D:'Athar Minallah'}, answer:'A' },
+           { q: '19. The largest dam in Pakistan is —', options:{A:'Tarbela',B:'Mangla',C:'Warsak',D:'Diamer Bhasha'}, answer:'A' },
+           { q: '20. The headquarters of NATO is in —', options:{A:'London',B:'Brussels',C:'Paris',D:'Rome'}, answer:'B' },
+           { q: '21. The current President of the United States (2025) is —', options:{A:'Joe Biden',B:'Donald Trump',C:'Kamala Harris',D:'Ron DeSantis'}, answer:'C' },
+           { q: '22. The Nobel Peace Prize 2024 was awarded to —', options:{A:'Narges Mohammadi',B:'Malala Yousafzai',C:'Greta Thunberg',D:'Volodymyr Zelenskyy'}, answer:'A' },
+           { q: '23. The headquarters of the International Monetary Fund (IMF) is in —', options:{A:'London',B:'Paris',C:'Washington D.C.',D:'New York'}, answer:'C' },
+           { q: '24. The most populated city in Pakistan is —', options:{A:'Lahore',B:'Karachi',C:'Faisalabad',D:'Rawalpindi'}, answer:'B' },
+           { q: '25. The World Environment Day is celebrated every year on —', options:{A:'22 April',B:'1 May',C:'5 June',D:'10 December'}, answer:'C' }
+         ]
+       },
+     
+       {
+         id: 'D',
+         title: 'Section D — IT & MS Office (25 MCQs)',
+         questions: [
+           { q: '1. In Microsoft Word, the shortcut key Ctrl + B is used to —', options:{A:'Italic',B:'Bold',C:'Underline',D:'Justify'}, answer:'B' },
+           { q: '2. In MS Excel, which function is used to find the average of numbers?', options:{A:'COUNT',B:'AVERAGE',C:'SUM',D:'MAX'}, answer:'B' },
+           { q: '3. In MS PowerPoint, a new slide can be inserted using the shortcut —', options:{A:'Ctrl + N',B:'Ctrl + M',C:'Ctrl + S',D:'Ctrl + P'}, answer:'B' },
+           { q: '4. The default file extension of MS Excel 2016 is —', options:{A:'.docx',B:'.pptx',C:'.xlsx',D:'.xls'}, answer:'C' },
+           { q: '5. Which key combination is used to copy selected text?', options:{A:'Ctrl + C',B:'Ctrl + X',C:'Ctrl + V',D:'Ctrl + A'}, answer:'A' },
+           { q: '6. The AutoSum feature in Excel uses the formula —', options:{A:'=MAX()',B:'=SUM()',C:'=COUNT()',D:'=AVERAGE()'}, answer:'B' },
+           { q: '7. Which of the following is not an operating system?', options:{A:'Windows',B:'Android',C:'Linux',D:'MS Office'}, answer:'D' },
+           { q: '8. The function of the F2 key in Excel is —', options:{A:'Edit cell',B:'Rename file',C:'Save workbook',D:'Insert formula'}, answer:'A' },
+           { q: '9. In Word, to align text center, the shortcut key is —', options:{A:'Ctrl + E',B:'Ctrl + J',C:'Ctrl + L',D:'Ctrl + R'}, answer:'A' },
+           { q: '10. The primary memory of a computer is —', options:{A:'Hard Disk',B:'ROM',C:'RAM',D:'CD-ROM'}, answer:'C' },
+           { q: '11. The smallest unit of data in a computer is —', options:{A:'Byte',B:'Bit',C:'Kilobyte',D:'Megabyte'}, answer:'B' },
+           { q: '12. In Excel, to lock a cell reference, you use the symbol —', options:{A:'@',B:'$',C:'#',D:'&'}, answer:'B' },
+           { q: '13. Which one is a presentation software?', options:{A:'MS Word',B:'MS Excel',C:'MS PowerPoint',D:'MS Access'}, answer:'C' },
+           { q: '14. To print a document, the shortcut key is —', options:{A:'Ctrl + S',B:'Ctrl + P',C:'Ctrl + N',D:'Ctrl + O'}, answer:'B' },
+           { q: '15. Which Excel chart is best for showing trends over time?', options:{A:'Pie chart',B:'Line chart',C:'Bar chart',D:'Scatter chart'}, answer:'B' },
+           { q: '16. The function VLOOKUP() is used to —', options:{A:'Count rows',B:'Lookup values vertically',C:'Lookup horizontally',D:'Sum columns'}, answer:'B' },
+           { q: '17. In Windows, the shortcut Alt + Tab is used to —', options:{A:'Switch between open programs',B:'Close window',C:'Open Task Manager',D:'Refresh'}, answer:'A' },
+           { q: '18. MS Access is used for —', options:{A:'Spreadsheets',B:'Word processing',C:'Database management',D:'Presentations'}, answer:'C' },
+           { q: '19. The CPU is known as the —', options:{A:'Control Processing Unit',B:'Central Processing Unit',C:'Core Processing Unit',D:'Central Peripheral Unit'}, answer:'B' },
+           { q: '20. In Excel, the intersection of a row and a column is called —', options:{A:'Field',B:'Cell',C:'Box',D:'Table'}, answer:'B' },
+           { q: '21. The key used to refresh a webpage is —', options:{A:'F3',B:'F4',C:'F5',D:'F6'}, answer:'C' },
+           { q: '22. In MS Word, the default font is —', options:{A:'Times New Roman',B:'Arial',C:'Calibri',D:'Verdana'}, answer:'C' },
+           { q: '23. The shortcut to select all text in a document is —', options:{A:'Ctrl + E',B:'Ctrl + A',C:'Ctrl + S',D:'Ctrl + T'}, answer:'B' },
+           { q: '24. In Excel, the IF function is used to —', options:{A:'Compare two values',B:'Format text',C:'Add numbers',D:'Insert charts'}, answer:'A' },
+           { q: '25. The Recycle Bin in Windows is used to —', options:{A:'Delete files permanently',B:'Store temporary files',C:'Store deleted files',D:'Clean the disk'}, answer:'C' }
+         ]
+       }
+     ];
+     
+     // Render quiz
+     const root = document.getElementById('quiz-root');
+     
+     quizSections.forEach(section=>{
+       const sectDiv = document.createElement('div');
+       const secTitle = document.createElement('div');
+       secTitle.className = 'section-title';
+       secTitle.innerHTML = `<strong>${section.title}</strong>`;
+       sectDiv.appendChild(secTitle);
+     
+       section.questions.forEach((qq, idx)=>{
+         const qcard = document.createElement('div');
+         qcard.className = 'qcard';
+         const qnum = `${section.id}-${idx+1}`;
+         let html = `<div class="qtext">${qq.q}</div>`;
+         // options
+         for(const optKey of ['A','B','C','D']){
+           const optText = qq.options[optKey];
+           html += `<label class="option"><input type="radio" name="${qnum}" value="${optKey}"> <strong>${optKey}.</strong> ${escapeHtml(optText)}</label>`;
+         }
+         qcard.innerHTML = html;
+         sectDiv.appendChild(qcard);
+       });
+     
+       root.appendChild(sectDiv);
+     });
+     
+     // Utility to escape texts
+     function escapeHtml(s){
+       return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+     }
+     
+     // Submission logic
+     document.getElementById('submitBtn').addEventListener('click', onSubmit);
+     document.getElementById('resetBtn').addEventListener('click', onReset);
+     document.getElementById('closeBtn').addEventListener('click', closeModal);
+     document.getElementById('closeModal').addEventListener('click', closeModal);
+     
+     function onSubmit(){
+       // compute per-section score
+       let totalCorrect = 0;
+       let totalQuestions = 0;
+       const breakdown = [];
+     
+       for(const section of quizSections){
+         let sectionCorrect = 0;
+         const qCount = section.questions.length;
+         totalQuestions += qCount;
+     
+         section.questions.forEach((qq, idx)=>{
+           const qname = `${section.id}-${idx+1}`;
+           const selected = document.querySelector(`input[name="${qname}"]:checked`);
+           if(selected && selected.value === qq.answer) sectionCorrect++;
+         });
+     
+         totalCorrect += sectionCorrect;
+         breakdown.push({ title: section.title, correct: sectionCorrect, total: qCount });
+       }
+     
+       // show modal with breakdown
+       const modal = document.getElementById('resultModal');
+       const details = document.getElementById('resultDetails');
+       details.innerHTML = ''; // reset
+       breakdown.forEach(b=>{
+         const row = document.createElement('div');
+         row.className = 'result-row';
+         row.innerHTML = `<div>${b.title.replace('Section','Section')}</div><div>${b.correct} / ${b.total}</div>`;
+         details.appendChild(row);
+       });
+     
+       const perc = ((totalCorrect/totalQuestions)*100).toFixed(1);
+       document.getElementById('totalScore').innerHTML = `Total: <strong>${totalCorrect} / ${totalQuestions}</strong> &nbsp; (${perc}% )`;
+       modal.style.display = 'block';
+       window.scrollTo({top:0,behavior:'smooth'});
+     }
+     
+     function onReset(){
+       // clear all radio selections
+       const radios = document.querySelectorAll('input[type="radio"]');
+       radios.forEach(r=>r.checked = false);
+     }
+     
+     function closeModal(){ document.getElementById('resultModal').style.display='none'; }
+     </script>
+     </body>
+     </html>
+     
