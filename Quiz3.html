@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IBA / SRB — Sales Tax Officer Mock Quiz</title>
+  <style>
+    /* Simple, blogger-friendly dark theme */
+    :root{--bg:#0f1724;--card:#111827;--muted:#94a3b8;--accent:#06b6d4;--success:#10b981}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,#071024, #081224);color:#e6eef6}
+    .container{max-width:880px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;gap:12px}
+    h1{font-size:20px;margin:0}
+    p.lead{color:var(--muted);margin:6px 0 18px}
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .question{margin-bottom:14px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02)}
+    .q-title{font-weight:600}
+    .options{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+    label.opt{display:flex;gap:10px;align-items:center;padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+    input[type="radio"]{accent-color:var(--accent);transform:scale(1.05)}
+    label.opt:hover{background:rgba(255,255,255,0.02)}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:16px}
+    button{background:var(--accent);border:none;color:#052022;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(6,182,212,0.18)}
+    .result-area{margin-top:14px}
+    .result-box{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.03)}
+    .score{font-size:18px;font-weight:700}
+    .explain{margin-top:10px;color:var(--muted);line-height:1.45}
+    .correct{color:var(--success);font-weight:700}
+    footer.small{color:var(--muted);font-size:13px;margin-top:12px}
+    @media (max-width:600px){.container{padding:12px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <rect width="24" height="24" rx="6" fill="#06202A"></rect>
+        <path d="M6 8h12M6 12h8M6 16h6" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1>IBA / SRB — Sales Tax Officer Mock Quiz Online</h1>
+        <p class="lead">60 Multiple-Choice Questions — Timed Practice Minimum Time 60 Minutes.</p>
+      </div>
+      <div style="margin-left:auto;color:var(--muted)"><span id="timer">Time: 60:00</span></div>
+    </header>
+
+    <main class="card" id="quiz-card">
+      <form id="quizForm">
+        <!-- Questions will be injected here -->
+        <div id="questions"></div>
+
+        <div class="controls">
+          <button type="button" id="submitBtn">Submit Answers</button>
+          <button type="button" id="resetBtn" class="secondary">Reset</button>
+          
+        </div>
+
+        <!-- Result area placed directly below submit button (fixes Blogger popup/top-of-page issue) -->
+        <div class="result-area" id="resultArea" aria-live="polite"></div>
+      </form>
+
+      <footer class="small">Tip: use the <strong>Reset</strong> button to clear answers.</footer>
+    </main>
+  </div>
+
+  <script>
+    // Quiz data: short, high-yield Sales Tax Officer style questions with brief explanations
+    const quizData = [
+      {
+        q: "Which of the following is a taxable supply under Pakistan's Sales Tax Act?",
+        options: [
+          "Export of goods",
+          "Supply of electricity to domestic consumers",
+          "Supply of services to a non-resident where services are performed outside Pakistan",
+          "Local sale of manufactured goods"
+        ],
+        a: 3,
+        explain: "Local sale of manufactured goods is a typical taxable supply. Exports are zero-rated; some domestic electricity supplies can be exempt or different rates; services performed outside Pakistan to non-residents may be outside taxable scope."
+      },
+      {
+        q: "What is the usual rate applied to standard taxable goods (unless specified otherwise)?",
+        options: ["0%","5%","17%","25%"],
+        a: 2,
+        explain: "Historically standard sales tax rates in Pakistan have been around 15-18% depending on time and province; commonly objective-level questions use 17% as the standard example."
+      },
+      {
+        q: "Input tax adjustment allows a registered person to:",
+        options: [
+          "Claim a refund for all purchases without records",
+          "Adjust input tax against output tax for taxable supplies",
+          "Avoid charging tax to customers",
+          "Defer tax indefinitely"
+        ],
+        a: 1,
+        explain: "Input tax can be credited against output tax where VAT/Sales Tax law permits and conditions (like valid tax invoices) are met."
+      },
+      {
+        q: "Which document is typically required to claim input tax?",
+        options: ["Receipt from customer","Tax invoice from supplier","Purchase order","Delivery challan"],
+        a: 1,
+        explain: "A proper tax invoice issued by a registered supplier is usually necessary to claim input tax."
+      },
+      {
+        q: "Zero-rating means:",
+        options: ["Supply is exempt from tax and input cannot be claimed","Supply taxed at 0% but input tax may be claimed","Supply taxed normally and refunded later","Supply outside territorial jurisdiction"],
+        a: 1,
+        explain: "Zero-rated supplies are taxable at 0% and typically allow credit of input tax, unlike exemptions."
+      },
+      {
+        q: "Customs duties and sales tax: which statement is correct?",
+        options: [
+          "Sales tax is never charged on imports",
+          "Imports can be subject to both customs duties and sales tax",
+          "Customs duties replace sales tax",
+          "Only customs duty is collected at border; sales tax applies later"
+        ],
+        a: 1,
+        explain: "Imports commonly attract customs duty and, depending on law, sales tax at import stage unless specifically exempt."
+      },
+      {
+        q: "Which body administers provincial sales tax (Sindh) on goods/services?",
+        options: ["Federal Board of Revenue (FBR)","Sindh Revenue Board (SRB)","SECP","State Bank of Pakistan"],
+        a: 1,
+        explain: "Sindh Revenue Board (SRB) administers provincial sales tax in Sindh on certain services and provincial subjects."
+      },
+      {
+        q: "A 'registered person' for sales tax purposes means:",
+        options: [
+          "Anyone who buys goods in Pakistan",
+          "Person who has applied for and obtained sales tax registration where required",
+          "Only manufacturers",
+          "Only importers"
+        ],
+        a: 1,
+        explain: "Registration is required for persons who meet turnover thresholds or law-specific criteria; registered persons have tax obligations."
+      },
+      {
+        q: "What happens if output tax exceeds input tax in a tax period?",
+        options: ["No action needed","Supplier may pay the net tax to the authority","Supplier receives refund","Input tax is carried forward"],
+        a: 1,
+        explain: "Usually the net tax (output minus allowable input) is payable to the tax authority in that period."
+      },
+      {
+        q: "Which of the following is typically NOT acceptable evidence for export to support zero-rating?",
+        options: ["Shipping documents","Export bill of lading","Local tax invoice only","Customs export declaration"],
+        a: 2,
+        explain: "Local tax invoice alone is usually insufficient; export/shipping/customs documents are required to prove goods left the country."
+      },
+      {
+        q: "The term 'withholding' in sales tax context means:",
+        options: ["Supplier withholds input tax","Buyer withholds portion of tax at source and deposits to government","Taxpayer withholds salary tax","Supplier is exempt"],
+        a: 1,
+        explain: "Certain supplies may require the buyer to withhold a portion of tax and deposit it directly to the government (tax withheld at source)."
+      },
+      {
+        q: "Which is a common penalty trigger under sales tax law?",
+        options: ["Lateness in filing returns","Using electronic invoicing","Exporting goods","Registering voluntarily"],
+        a: 0,
+        explain: "Late filing or late payment of returns often attracts penalties or default surcharge."
+      },
+      {
+        q: "Input tax related to exempt supplies is usually:",
+        options: ["Fully recoverable","Partly recoverable","Not recoverable","Refundable on demand"],
+        a: 2,
+        explain: "Input tax on exempt supplies is generally not recoverable under VAT/VSTS frameworks unless specific refund rules exist."
+      },
+      {
+        q: "Which rate applies to exported services (if zero-rated)?",
+        options: ["Standard rate","Reduced rate","0%","Exempt with no input recovery"],
+        a: 2,
+        explain: "If services are zero-rated exports (subject to conditions), rate is 0% while input recovery may be permitted."
+      },
+      {
+        q: "Record-keeping period for tax documents is typically:",
+        options: ["1 year","3 months","6 years","Indefinite"],
+        a: 2,
+        explain: "Many tax laws require retaining records for several years (commonly 5-6 years) for audit purposes; confirm with local law."
+      },
+      {
+        q: "Sales tax invoice must typically contain which of the following?",
+        options: ["Supplier's NTN or registration number","Customer's favorite colour","Supplier's bank balance","Delivery driver's name"],
+        a: 0,
+        explain: "A valid invoice usually includes supplier's registration/NTN, invoice number, date, description of supply, and tax charged."
+      },
+      {
+        q: "A refund claim for overpaid sales tax usually requires:",
+        options: ["No documents","Supporting evidence and proper form","Only a phone call","Anonymous complaint"],
+        a: 1,
+        explain: "Refunds require application with supporting documents and often verification/audit by the authority."
+      },
+      {
+        q: "Which supplies are commonly zero-rated rather than exempt?",
+        options: ["Local healthcare services","Exports of goods","Local residential rent","Private tuition services"],
+        a: 1,
+        explain: "Exports are typically zero-rated to keep them tax-neutral while allowing input recovery."
+      },
+      {
+        q: "Sales tax Act established in which year?",
+        options: ["1986","1990","1993","1951"],
+        a: 1,
+        explain: "It came into force on November 1, 1990, replacing the previous Sales Tax Act of 1951"
+      },
+      {
+        q: "What is the purpose of reconciliation of sales tax returns?",
+        options: ["To match reported figures with books and invoices","To avoid filing returns","To increase tax liability","To change tax rates"],
+        a: 0,
+        explain: "Reconciliation ensures returns match accounting records and identifies discrepancies before submission."
+      },
+      {q:"What is the central problem of economics?", options:["Inflation","Scarcity","Unemployment","Money"], a:1},
+      {q:"Which of the following best describes opportunity cost?", options:["Cost of production","Cost of choosing one alternative over another","Cost of labor","Total fixed cost"], a:1},
+      {q:"In a perfectly competitive market, individual firms are:", options:["Price makers","Price takers","Monopolists","Oligopolists"], a:1},
+      {q:"Gross Domestic Product (GDP) measures:", options:["Total income of residents only","Total market value of final goods and services produced within a country","National savings","Government expenditure"], a:1},
+      {q:"Which of the following is a leakage from the circular flow of income?", options:["Investment","Consumption","Exports","Savings"], a:3},
+      {q:"Demand curve generally slopes:", options:["Upward from left to right","Downward from left to right","Horizontal","Vertical"], a:1},
+      {q:"Which policy is used by the central bank to control inflation?", options:["Expansionary fiscal policy","Contractionary monetary policy","Expansionary monetary policy","Price ceiling"], a:1},
+      {q:"Fiscal policy refers to:", options:["Government taxation and spending policies","Central bank’s money supply policies","Trade restrictions","Foreign exchange management"], a:0},
+      {q:"Elasticity of demand measures:", options:["Degree of price rigidity","Response of demand to price changes","Amount of demand at equilibrium","Rate of income growth"], a:1},
+      {q:"If marginal cost is below average cost, then average cost will:", options:["Rise","Fall","Remain constant","Become zero"], a:1},
+      {q:"In the short run, at least one factor of production is:", options:["Fixed","Variable","Zero","Unlimited"], a:0},
+      {q:"Public goods are characterized by:", options:["Excludability and rivalry","Non-excludability and non-rivalry","Excludability only","Rivalry only"], a:1},
+      {q:"A country’s balance of payments records:", options:["Only visible exports and imports","All economic transactions with the rest of the world","Only capital transactions","Government foreign aid only"], a:1},
+      {q:"Which of the following can shift the demand curve to the right?", options:["Increase in income for normal goods","Increase in prices","Decrease in population","Decrease in consumer confidence"], a:0},
+      {q:"Monopoly exists when:", options:["There are few buyers","There are many sellers","There is only one seller","There is perfect competition"], a:2},
+      {q:"Which organization regulates international trade?", options:["IMF","World Bank","WTO","UNESCO"], a:2},
+      {q:"Inflation reduces the:", options:["Value of money","Supply of money","Nominal income","Wages"], a:0},
+      {q:"The law of diminishing marginal returns applies when:", options:["All factors are variable","At least one factor is fixed","Output is constant","Resources are unlimited"], a:1},
+      {q:"Which indicator measures inequality of income distribution?", options:["GDP growth rate","Consumer Price Index","Gini coefficient","Human Development Index"], a:2},
+      {q:"If aggregate demand exceeds aggregate supply, the likely result is:", options:["Deflation","Recession","Inflation","Stagflation"], a:2},
+      {q:"Which is the national flower of Pakistan?", options:["Rose","Jasmine","Tulip","Sunflower"], a:1},
+      {q:"Who was the first Prime Minister of Pakistan?", options:["Liaquat Ali Khan","Khawaja Nazimuddin","Muhammad Ali Bogra","Zulfikar Ali Bhutto"], a:0},
+      {q:"The headquarters of the United Nations is located in:", options:["London","New York","Geneva","Paris"], a:1},
+      {q:"The largest planet in our solar system is:", options:["Earth","Saturn","Jupiter","Neptune"], a:2},
+      {q:"Which is the longest river in the world?", options:["Nile","Amazon","Yangtze","Mississippi"], a:0},
+      {q:"In which year did Pakistan become a member of the United Nations?", options:["1947","1948","1949","1950"], a:1},
+      {q:"The capital city of Canada is:", options:["Toronto","Vancouver","Ottawa","Montreal"], a:2},
+      {q:"Which instrument measures atmospheric pressure?", options:["Thermometer","Barometer","Hygrometer","Anemometer"], a:1},
+      {q:"Who discovered Penicillin?", options:["Louis Pasteur","Alexander Fleming","Isaac Newton","Marie Curie"], a:1},
+      {q:"Which is the smallest continent by area?", options:["Europe","Australia","Antarctica","South America"], a:1},
+      {q:"The currency of Japan is:", options:["Yen","Won","Ringgit","Baht"], a:0},
+      {q:"The Indus River originates from:", options:["Karakoram Range","Kailash Range","Himalayas","Sulaiman Range"], a:1},
+      {q:"The world’s largest desert is:", options:["Sahara","Arabian","Gobi","Kalahari"], a:0},
+      {q:"Who is the current Secretary-General of the United Nations (as of 2025)?", options:["Antonio Guterres","Ban Ki-moon","Kofi Annan","Tedros Ghebreyesus"], a:0},
+      {q:"Which country is known as the Land of the Rising Sun?", options:["China","Japan","Korea","Thailand"], a:1},
+      {q:"Which element has the chemical symbol ‘O’?", options:["Osmium","Oxygen","Oxide","Ozone"], a:1},
+      {q:"Which is the highest military award of Pakistan?", options:["Nishan-e-Imtiaz","Tamgha-e-Jurat","Hilal-e-Pakistan","Nishan-e-Haider"], a:3},
+      {q:"Who wrote the national anthem of Pakistan?", options:["Allama Iqbal","Hafeez Jullundhri","Ahmed Ghulamali Chagla","Faiz Ahmed Faiz"], a:1},
+      {q:"Which country recently hosted the 2024 Summer Olympics?", options:["France","USA","Japan","China"], a:0},
+      {q:"What is the capital of Sindh province?", options:["Hyderabad","Karachi","Sukkur","Larkana"], a:1}
+    ];
+
+    // Timer settings (20 minutes default)
+    let totalSeconds = 60 * 60;
+    let timerInterval = null;
+
+    function startTimer(){
+      const el = document.getElementById('timer');
+      timerInterval = setInterval(()=>{
+        if(totalSeconds<=0){clearInterval(timerInterval);el.textContent='Time: 00:00';autoSubmit();return}
+        const m = Math.floor(totalSeconds/60).toString().padStart(2,'0');
+        const s = (totalSeconds%60).toString().padStart(2,'0');
+        el.textContent = `Time: ${m}:${s}`;
+        totalSeconds -= 1;
+      },1000);
+    }
+
+    function renderQuestions(){
+      const container = document.getElementById('questions');
+      container.innerHTML = '';
+      quizData.forEach((item, idx) =>{
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `
+          <div class="q-title">${idx+1}. ${item.q}</div>
+          <div class="options">
+            ${item.options.map((opt,i)=>`<label class="opt"><input type="radio" name="q${idx}" value="${i}"><span>${opt}</span></label>`).join('')}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function gradeQuiz(){
+      let correct = 0;
+      const explanations = [];
+      quizData.forEach((item, idx)=>{
+        const radios = document.getElementsByName('q'+idx);
+        let selected = null;
+        for(const r of radios) if(r.checked) {selected = Number(r.value); break}
+        const isCorrect = selected === item.a;
+        if(isCorrect) correct++;
+        explanations.push({q: item.q, chosen: selected, correct: item.a, explain: item.explain, options: item.options});
+      });
+      return {score: correct, total: quizData.length, explanations};
+    }
+
+    function showResults(result){
+      const area = document.getElementById('resultArea');
+      area.innerHTML = '';
+      const box = document.createElement('div');
+      box.className = 'result-box';
+      box.innerHTML = `<div class="score">Score: ${result.score} / ${result.total} (${Math.round(result.score/result.total*100)}%)</div>`;
+
+      // summary + short pass/fail suggestion
+      const passMark = Math.ceil(result.total*0.6);
+      const msg = document.createElement('div');
+      msg.style.marginTop = '8px';
+      msg.textContent = result.score >= passMark ? 'Nice — solid basic knowledge. Review explanations for missed items.' : 'Keep practising — review explanations for missed items and local law updates.';
+      box.appendChild(msg);
+
+      // Explanations accordion
+      //const expl = document.createElement('div');
+      //expl.className = 'explain';
+      //expl.innerHTML = result.explanations.map((e, i)=>{
+        //const chosenText = (e.chosen===null||e.chosen===undefined) ? 'No answer' : e.options[e.chosen];
+        //const correctText = e.options[e.correct];
+        //const correctClass = (e.chosen===e.correct) ? 'correct' : '';
+        //return `<div style="margin-top:12px"><strong>${i+1}.</strong> ${e.q}<br><small>Your answer: ${chosenText} — Correct: <span class='${correctClass}'>${correctText}</span></small><div style='margin-top:6px'>${e.explain}</div></div>`
+      //}).join('');
+      //box.appendChild(expl);
+
+      area.appendChild(box);
+      // Scroll result into view (keeps near submit button)
+      box.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
+    function autoSubmit(){
+      document.getElementById('submitBtn').click();
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', ()=>{
+      clearInterval(timerInterval);
+      const r = gradeQuiz();
+      showResults(r);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(timerInterval) clearInterval(timerInterval);
+      totalSeconds = 60*60;
+      startTimer();
+      renderQuestions();
+      document.getElementById('resultArea').innerHTML = '';
+    });
+
+    // initial render
+    renderQuestions();
+    startTimer();
+  </script>
+</body>
+</html>
